@@ -1,8 +1,22 @@
-#
+"""
+File: constitutive_law.py
+Author: David Dalton
+Description: Various setups before training, e.g. constitutive law
+"""
+
+####################################################
+## Package imports
+####################################################
+
 import jax.numpy as jnp
 from jax import device_put
 import os
 import sys
+
+####################################################
+## Transformation functions for stabilising strain 
+## energy - see Section 2.4.3 of paper for details
+####################################################
 
 Jmin = 0.001  # minimum value of J which we allow
 Jtrans = 0.05 # point at which transformation function kicks in
@@ -21,18 +35,47 @@ I1_trans = 10 # point at which transformation function kicks in
 tanh_fn = lambda I1: jnp.tanh(I1 - I1_trans) + I1_trans
 I1_trans_fn = lambda I1: jnp.where(I1 < I1_trans, I1, tanh_fn(I1))
 
-def NeoHookean(params, F, J, fibres=None):
+####################################################
+## Define constitutive law 
+####################################################
 
+def NeoHookean(params, F, J, fibres=None):
+    """NeoHookean strain energy density function
+
+    Inputs:
+    -----------
+    params: jnp.array
+       Material parameter vector
+    F     : jnp.array
+       Deformation gradient
+    J     : jnp.array
+       Determinant of F
+    fibres: None
+       Not used here as we assume isotropic material
+
+    Returns:
+    ----------
+    sed: float
+       Strain energy density
+    """
+
+    # extract Lame material parameters
     lambda_, mu = params
 
+    # right Cauchy-Green tensor
     C = jnp.matmul(F.T, F)
+
+    # first invariant
     Ic = jnp.trace(C)
+
+    # transform to stop very large values
     Ic = I1_trans_fn(Ic)
 
     lnJ = jnp.log(J)
 
-    return (mu/2.)*(Ic - 3.) - mu*lnJ + (lambda_/2.)*(lnJ**2)
+    sed = (mu/2.)*(Ic - 3.) - mu*lnJ + (lambda_/2.)*(lnJ**2)
 
+    return sed
 
 constitutive_law = NeoHookean
 
@@ -62,10 +105,17 @@ body_force             = jnp.array([0.]*(2) + [-g])
 params_lb = jnp.array([35000.]*2)
 params_ub = jnp.array([100000.]*2)
 
-epoch_size = 200
+####################################################
+## Sample parameters on log scale or uniform scale 
+####################################################
 
 log_sampling = True
 
+####################################################
+## Set number of parameters to sample at each epoch 
+####################################################
+
+epoch_size = 200
 
 
 

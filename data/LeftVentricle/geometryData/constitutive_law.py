@@ -1,7 +1,7 @@
 """
 File: constitutive_law.py
 Author: David Dalton
-Description: Various setups before training, e.g.constitutive law
+Description: Various setups before training, e.g. constitutive law
 """
 
 ####################################################
@@ -39,25 +39,52 @@ tanh_fn      = lambda I4f: jnp.tanh(I4f - I4f_trans) + I4f_trans
 I4f_trans_fn = lambda I4f: jnp.where(I4f < I4f_trans, I4f, tanh_fn(I4f))
 
 
-kappa = 25.
-def HO_trans_iso(params, F, J, f0):
+####################################################
+## Define constitutive law 
+####################################################
 
+# incompressibility penalty parameter
+kappa = 25.
+
+def HolzapfelOgden(params, F, J, f0):
+    """Transversely-isotropic HO strain energy density function
+
+    Inputs:
+    -----------
+    params: jnp.array
+       Material parameter vector
+    F     : jnp.array
+       Deformation gradient
+    J     : jnp.array
+       Determinant of F
+    f0:   : jnp.array
+       Myofibre orientation vector
+
+    Returns:
+    ----------
+    sed: float
+       Strain energy density
+    """
+
+    # extract Lame material parameters
     a, b, af, bf, = params
 
+    # right Cauchy-Green tensor (using F-bar method)
     C = jnp.power(J, -2./3.) * jnp.matmul(F.T, F)
 
+    # first invariant and I4f pseudo-invariant
     I1 = jnp.trace(C)
     I4f = jnp.matmul(jnp.matmul(f0.T, C), f0)
 
+    # transform to stop very large values
     I1 = I1_trans_fn(I1)
     I4f = I4f_trans_fn(I4f)
+     
+    sed = (a/b) * (jnp.exp(b * (I1 - 3.)) - 1.) + (af/bf)*(jnp.exp(bf*(I4f - 1.)**2) - 1) + kappa * (J**2 - 1. - 2.*jnp.log(J))
 
-    Wani = (a/b) * (jnp.exp(b * (I1 - 3.)) - 1.) + (af/bf)*(jnp.exp(bf*(I4f - 1.)**2) - 1)
-    Winc = kappa * (J**2 - 1. - 2.*jnp.log(J))
+    return sed
 
-    return Wani + Winc
-
-constitutive_law = HO_trans_iso
+constitutive_law = HolzapfelOgden 
 
 ####################################################
 ## Define function to enforce essential boundary conditions
