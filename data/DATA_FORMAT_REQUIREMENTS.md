@@ -26,9 +26,11 @@ For the below, we let *Nnode* (*Nelem*) denote the number of finite-element node
 ### OPTIONAL:
 
 
-```disp-add.npy```: (*Nnode* * 3) array used to satisfy inhomogeneous Dirichlet boundary conditions (as for example in the TwistingBeam model).
+```disp-add.npy```: (*Nnode* * 3) array used to satisfy inhomogeneous Dirichlet boundary conditions (as for example in the *TwistingBeam* model, see its [``constitutive_law.py``](TwistingBeam/geometryData/constitutive_law.py) file for more details).
 
 ```fibre-field-elementwise.npy```: (*Nelem* * 3) array of fibre orientations for each element in mesh, if material is non-isotropic (as for example in LeftVentricle model).
+
+```pressure-surface-facets.npy```: (*Nfacet* * 4) array of which gives details of the facets which make up the surface to which a pressure/traction force is applied. Only required if the model includes a traction force (like the *LeftVentricle* model). The first element of each row gives the index of the element that the triangular facet belongs to (we are assuming a tetrahedral mesh), while the final three elements give the indices of the three nodes which make up the facet .  For further details, see the file [``LeftVentricle/geometryData/pressure-surface-facets.npy``](LeftVentricle/geometryData/pressure-surface-facets.npy).
 
 ```sim_output.xdmf``` and ```sim_output.h5```: files used to generate 3D .vtk and .ply files to visualise emulation results. These files can be generated in FEniCS as follows: can be generated using FEniCS by running the following in Python after the displacement ``u`` has been solved for:
 
