@@ -1,7 +1,3 @@
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = str(0)
-os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
-
 """
 File: main.py
 Author: David Dalton
