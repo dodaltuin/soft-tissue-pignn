@@ -6,6 +6,8 @@ The above datasets have been already been processed into a format suitable for r
 
 For completeness, data processing code is provided here. This code is contained inside [``data_process_utils.py``](data_process_utils.py), which can be called using [``data_main.py``](data_main.py) as is detailed below. The requirement formats for the raw unprocessed data to allow the above scripts to run are detailed in [``DATA_FORMAT_REQUIREMENTS.md``](DATA_FORMAT_REQUIREMENTS.md). We also provide an example of an unprocessed dataset generated using ``FEniCS`` in [``TwistingBeamUnprocessed``](TwistingBeamUnprocessed).
 
+Note that an "unprocessed" dataset will still require some pre-processing of the results from e.g. FEniCS - for an example of how to apply this pre-processing, see [FenicsMeshProcessingLV.ipynb](fenicsMeshProcessing/FenicsMeshProcessingLV.ipynb).
+
 For more details on augmented graph graph generation (i.e. the use of virtual nodes/edges), see Section 2.3 of [Dalton et. al (2022)](https://doi.org/10.1016/j.cma.2022.115645) and the associated [GitHub repository](https://github.com/dodaltuin/passive-lv-gnn-emul).
 
 ## Processing Data
