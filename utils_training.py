@@ -17,7 +17,10 @@ from flax.metrics import tensorboard
 tensorboard.tf.config.experimental.set_visible_devices([], 'GPU')
 
 from jax.config import config
-config.update("jax_debug_nans", True)
+# DEBUG_NANS = True is useful for debugging, but it
+# runs more slowly than DEBUG_NANS = False
+DEBUG_NANS = False
+config.update("jax_debug_nans", DEBUG_NANS)
 
 import numpy as np
 
